@@ -1,0 +1,294 @@
+---
+title: "MU_Zadaca3"
+author: "Ema Rudalija"
+date: "1/15/2022"
+output: html_document
+---
+
+Studenti: Amina Alagić (1966/18425), Nejra Rovčanin (1960/18480), Ema Rudalija (1974/18555)
+
+Nastavna grupa: Grupa 2
+
+# Zadaca 3
+
+## Zadatak1
+
+## a)
+
+##učitavanje dataseta i smanjenje broja redova radi lakseg procesiranja
+
+```{r}
+podaci <- read.csv("bankmarketing.csv", fileEncoding = 'UTF-8')
+
+```
+
+## tipovi podataka i njihova distribucija
+```{r}
+boxplot(podaci$age, xlab = "Godine")
+boxplot(podaci$duration, xlab = "Trajanje")
+boxplot(podaci$campaign, xlab = "Kampanja")
+boxplot(podaci$pdays, xlab = "Broj dana od zadnjeg poziva prethodne kampanje")
+boxplot(podaci$previous, xlab = "Broj ostavrenih kontakata u prosloj kampanji")
+boxplot(podaci$emp.var.rate, xlab = "Stopa varijacije zaposlenosti")
+boxplot(podaci$cons.price.idx, xlab = "Indeks potrošačkih cijena")
+boxplot(podaci$cons.conf.idx, xlab = "Indeks povjerenja potrošača")
+boxplot(podaci$euribor3m, xlab = "Euribor tromjesečna stopa")
+boxplot(podaci$nr.employed, xlab = "Broj zaposlenih")
+```
+
+```{r}
+hist(podaci$age, prob = TRUE, main = "Grafik gustoce za godine")
+dx <- density(podaci$age)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$duration, prob = TRUE, main = "Grafik gustoce za trajanje")
+dx <- density(podaci$duration)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$campaign, prob = TRUE, main = "Grafik gustoce za kampanju")
+dx <- density(podaci$campaign)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$pdays, prob = TRUE, main = "Grafik gustoce za broj dana od zadnjeg poziva prethodne kampanje")
+dx <- density(podaci$pdays)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$previous, prob = TRUE, main = "Grafik gustoce za broj ostavrenih kontakata u prosloj kampanji")
+dx <- density(podaci$previous)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$emp.var.rate, prob = TRUE, main = "Grafik gustoce za stopu varijacije zaposlenosti")
+dx <- density(podaci$emp.var.rate)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$cons.price.idx, prob = TRUE, main = "Grafik gustoce za indeks potrošačkih cijena")
+dx <- density(podaci$cons.price.idx)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$cons.conf.idx, prob = TRUE, main = "Grafik gustoce za indeks povjerenja potrošača")
+dx <- density(podaci$cons.conf.idx)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$euribor3m, prob = TRUE, main = "Grafik gustoce za euribor tromjesečna stopa")
+dx <- density(podaci$euribor3m)
+lines(dx, lwd = 2, col = "blue")
+
+hist(podaci$nr.employed, prob = TRUE, main = "Grafik gustoce za broj zaposlenih")
+dx <- density(podaci$nr.employed)
+lines(dx, lwd = 2, col = "blue")
+```
+
+```{r}
+
+barplot(table(podaci$job), xlab = "Poslovi", ylab = "Broj klijenata")
+barplot(table(podaci$marital), xlab = "Bračni status", ylab = "Broj klijenata")
+barplot(table(podaci$education), xlab = "Vrsta edukacije", ylab = "Broj klijenata")
+barplot(table(podaci$default), xlab = "Neizmireni kredit", ylab = "Broj klijenata")
+barplot(table(podaci$housing), xlab = "Stambeni kredit", ylab = "Broj klijenata")
+barplot(table(podaci$loan), xlab = "Zajam", ylab = "Broj klijenata")
+barplot(table(podaci$contact), xlab = "Vrsta kontakta", ylab = "Broj klijenata")
+barplot(table(podaci$month), xlab = "Mjesec zadnjeg kontakta", ylab = "Broj klijenata")
+barplot(table(podaci$day_of_week), xlab = "Dan zadnjeg kontakta", ylab = "Broj klijenata")
+barplot(table(podaci$poutcome), xlab = "Rezultat prethodne kampanje", ylab = "Broj klijenata")
+```
+##normalizacija podataka
+```{r}
+library(dplyr)
+
+podaci = subset(podaci, podaci$duration < 500 & podaci$campaign < 2 & podaci$pdays >100)
+podaci <- subset(podaci, select = -c(y))
+
+max <- max(podaci$duration)
+j <- 0
+while (10 ** j < max)
+ j = j + 1
+podaci <- mutate(podaci, duration = duration / 10 ** j)
+
+max <- max(podaci$pdays)
+j <- 0
+while (10 ** j < max)
+ j = j + 1
+podaci <- mutate(podaci, pdays = pdays / 10 ** j)
+
+max <- max(podaci$cons.price.idx)
+j <- 0
+while (10 ** j < max)
+ j = j + 1
+podaci <- mutate(podaci, cons.price.idx = cons.price.idx / 10 ** j)
+
+max <- max(podaci$nr.employed)
+j <- 0
+while (10 ** j < max)
+ j = j + 1
+podaci <- mutate(podaci, nr.employed = nr.employed / 10 ** j)
+
+
+max <- max(podaci$emp.var.rate)
+min <- min(podaci$emp.var.rate)
+podaci <- mutate(podaci, emp.var.rate = (emp.var.rate - min) / (max -
+min))
+
+max <- max(podaci$cons.conf.idx)
+min <- min(podaci$cons.conf.idx)
+podaci <- mutate(podaci, cons.conf.idx = (cons.conf.idx - min) / (max -
+min))
+
+
+
+```
+
+##transformacija atributa
+```{r}
+podaci$job <- as.numeric(factor(podaci$job))
+podaci$marital <- as.numeric(factor(podaci$marital))
+podaci$education <- as.numeric(factor(podaci$education))
+podaci$default <- as.numeric(factor(podaci$default))
+podaci$housing <- as.numeric(factor(podaci$housing))
+podaci$loan <- as.numeric(factor(podaci$loan))
+podaci$contact <- as.numeric(factor(podaci$contact))
+podaci$month <- as.numeric(factor(podaci$month))
+podaci$day_of_week <- as.numeric(factor(podaci$day_of_week))
+podaci$poutcome <- as.numeric(factor(podaci$poutcome))
+
+
+rows <- sample(nrow(podaci))
+podaci <- podaci[rows, ]
+end <- length(podaci$job)
+n <- as.integer(0.90 * end)
+podaci_train <- podaci[1 : n, ]
+podaci_test <- podaci[(n + 1) : end, ]
+
+podaci <- podaci_test
+
+```
+
+## klastering tendencija
+```{r}
+library(clustertend) 
+library(factoextra)
+distance <- get_dist(podaci, method = "manhattan") 
+fviz_dist(distance, gradient = list(low = "blue", mid = "white", high = "red")) 
+```
+
+## klastering tendencija
+```{r}
+
+distance <- get_dist(podaci, method = "euclidean") 
+fviz_dist(distance, gradient = list(low = "blue", mid = "white", high = "red")) 
+
+```
+
+```{r}
+
+distance <- get_dist(podaci, method = "minkowski") 
+fviz_dist(distance, gradient = list(low = "blue", mid = "white", high = "red")) 
+
+```
+
+```{r}
+
+distance <- get_dist(podaci, method = "pearson")
+fviz_dist(distance, gradient = list(low = "blue", mid = "white", high ="red"))
+
+```
+
+
+##b)
+```{r}
+library(cluster)
+library(factoextra)
+ 
+podaci <- na.omit(podaci)
+
+fviz_nbclust(podaci, pam, method = "silhouette")
+
+model <- pam(podaci, k = 2, metric = "manhattan")
+plot(podaci[c("duration", "cons.price.idx")], col = model$cluster)
+plot(podaci[c("euribor3m", "duration")], col = model$cluster)
+
+model <- pam(podaci, 2, metric = "manhattan")
+sil <- silhouette(model$cluster, get_dist(podaci, method ="manhattan"))
+cat("Srednja vrijednost silhouette metrike za PAM (manhattan metrika):",mean(sil[, 3]), "\n")
+fviz_silhouette(model)
+
+```
+##c)
+```{r}
+library(cluster)
+library(factoextra)
+ 
+podaci <- na.omit(podaci)
+
+fviz_nbclust(podaci, kmeans, method = "silhouette")
+
+model <- kmeans(podaci, centers = 2)
+plot(podaci[c("duration", "cons.price.idx")], col = model$cluster)
+plot(podaci[c("euribor3m", "duration")], col = model$cluster)
+
+model <- kmeans(podaci, centers = 2)
+sil <- silhouette(model$cluster, get_dist(podaci, method = "manhattan"))
+cat("Srednja vrijednost silhouette metrike za kmeans:", mean(sil[, 3]),"\n")
+plot(sil, border = NA)
+
+
+```
+##dodatna preprocesiranja 
+
+```{r}
+library(stats)
+
+
+podaci <- subset(podaci, select = -c(campaign))
+podaci <- subset(podaci, select = -c(pdays))
+
+
+pca <- prcomp(podaci, scale. = TRUE)
+
+library(factoextra)
+fviz_eig(pca)
+summary(pca)
+
+fviz_pca_var(pca,
+ col.var = "contrib",
+ gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+ repel = TRUE
+ )
+
+```
+
+## d)
+
+```{r}
+newdata <- predict(pca, podaci)
+newdata <- newdata[, 1:10]
+newdata <- data.frame(newdata)
+
+
+```
+
+```{r}
+model <- kmeans(newdata, centers = 2)
+plot(newdata[c("PC1", "PC2")], col = model$cluster)
+plot(newdata[c("PC2", "PC4")], col = model$cluster)
+fviz_cluster(model, data = newdata)
+
+model <- kmeans(newdata, centers = 2)
+sil <- silhouette(model$cluster, get_dist(newdata))
+cat("Srednja vrijednost silhouette metrike za kmeans:", mean(sil[, 3]),"\n")
+plot(sil, border = NA)
+
+
+```
+
+```{r}
+
+model <- pam(newdata, k = 2)
+plot(newdata[c("PC1", "PC2")], col = model$cluster)
+plot(newdata[c("PC2", "PC4")], col = model$cluster)
+fviz_cluster(model, data = newdata)
+
+model <- pam(newdata, 2, metric = "manhattan")
+sil <- silhouette(model$cluster, get_dist(newdata, method ="manhattan"))
+cat("Srednja vrijednost silhouette metrike za PAM (euclidean metrika):",mean(sil[, 3]))
+fviz_silhouette(model)
+```
